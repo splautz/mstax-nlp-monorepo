@@ -1,0 +1,103 @@
+version: "3.9"
+
+networks:
+  nlp-app:
+    driver: bridge
+    name: nlp-app
+
+volumes:
+  nlp-app-elastic-volume:
+
+services:
+  elastic:
+    image: nlp-app/elasticsearch
+    build: 
+      context: "./elasticsearch/"
+      dockerfile: Dockerfile.elastic
+    container_name: nlp-app-elasticsearch
+    init: true
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - nlp-app
+    volumes:
+      - type: volume
+        source: nlp-app-elastic-volume
+        target: /usr/share/elasticsearch/data
+    restart: on-failure
+    healthcheck:
+      test: curl localhost:9200/
+      interval: 30s
+      timeout: 15s
+      start_period: 90s
+      retries: 3
+
+  api-files:
+    image: nlp-app/api-files
+    container_name: nlp-app-api-files
+    build:
+      context: ./api-files/
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - elastic
+    environment:
+      PORT: 8000
+      HOST: 0.0.0.0
+      PYTHONBUFFERED: 1
+      MAX_PAGE_LIMIT: 1000000
+      ENABLE_CLAMAV_SCAN: False
+      ES_HOST: elastic
+    ports:
+      - 5001:8000
+    networks:
+      - nlp-app
+    restart: on-failure
+    healthcheck:
+      test: curl localhost:5001/about
+      interval: 30s
+      timeout: 15s
+      start_period: 90s
+      retries: 3
+
+  nlp-api:
+    image: nlp-app/nlp-api
+    container_name: nlp-app-nlp-api
+    build:
+      context: ./mstax-machine-learning-poc/
+      dockerfile: Dockerfile.dev
+      args:
+        PORT: 8000
+        HOST: 0.0.0.0
+        HTTP_SCHEME: http
+        MAX_PAGE_LIMIT: 1000000
+        PYTHONUNBUFFERED: 1
+    networks:
+      - nlp-app
+    volumes:
+      - type: bind
+        source: ./mstax-machine-learning-poc/
+        target: /usr/src
+    ports:
+      - 5030:8000
+    restart: always
+
+  files-ui:
+    image: nlp-app/files-ui
+    build:
+      context: ./mstax-ui-files/
+      dockerfile: Dockerfile
+    container_name: nlp-app-files-ui
+    depends_on:
+      - api-files
+    ports:
+      - 4300:80
+    networks:
+      - nlp-app
+    restart: on-failure
+    healthcheck:
+      test: curl localhost:4300/
+      interval: 30s
+      timeout: 15s
+      start_period: 360s
+      retries: 3

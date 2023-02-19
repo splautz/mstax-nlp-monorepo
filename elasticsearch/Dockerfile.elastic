@@ -1,0 +1,9 @@
+FROM docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+
+USER root
+
+ENV discovery.type single-node
+
+RUN elasticsearch-plugin install -b ingest-attachment
+
+EXPOSE 9200
