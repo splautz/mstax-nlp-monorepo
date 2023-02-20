@@ -1,3 +1,6 @@
 [submodule "mstax-api-files"]
 	path = mstax-api-files
 	url = https://github.com/Deloitte/mstax-api-files.git
+[submodule "mstax-ui-files"]
+	path = mstax-ui-files
+	url = https://github.com/Deloitte/mstax-ui-files.git
