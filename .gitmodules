@@ -4,3 +4,6 @@
 [submodule "mstax-ui-files"]
 	path = mstax-ui-files
 	url = https://github.com/Deloitte/mstax-ui-files.git
+[submodule "mstax-machine-learning-poc"]
+	path = mstax-machine-learning-poc
+	url = https://github.com/Deloitte/mstax-machine-learning-poc.git
