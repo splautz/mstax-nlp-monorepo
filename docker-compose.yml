@@ -38,7 +38,7 @@ services:
     container_name: nlp-app-api-files
     build:
       context: ./api-files/
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     depends_on:
       - elastic
     environment:
@@ -68,10 +68,6 @@ services:
       dockerfile: Dockerfile.dev
     networks:
       - nlp-app
-    volumes:
-      - type: bind
-        source: ./mstax-machine-learning-poc/
-        target: /usr/src
     ports:
       - 5030:5030
     restart: always

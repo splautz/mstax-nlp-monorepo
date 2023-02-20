@@ -32,12 +32,12 @@ register_frontend()
 # Backend Services
 ######################
 
-python_servers = ["api-files"]
+python_servers = ["api-files", 'nlp-api']
 
 # Specify all backend services in this application stack
 backend = {
-    "api-files": {"docs": "http://localhost:5001/docs", "project_dir": "api-files"},
-    "nlp-api": {"docs": "http://localhost:5030/docs", "project_dir": "mstax-machine-learning-poc"},
+    "api-files": {"docs": "http://localhost:5001/docs", "project_dir": "mstax-api-files", "dockerfile": "Dockerfile"},
+    "nlp-api": {"docs": "http://localhost:5030/docs", "project_dir": "mstax-machine-learning-poc", "dockerfile": "Dockerfile.dev"},
 }
 
 
@@ -54,7 +54,7 @@ def register_backend():
 
 def build_image(service, build_path):
     dev_image_name = "nlp-app/" + service
-    dev_dockerfile = build_path + "/Dockerfile.dev"
+    dev_dockerfile = build_path + '/' + backend[service]['dockerfile']
     build_python_image(dev_image_name, dev_dockerfile, build_path)
 
 def build_python_image(dev_image_name, dev_dockerfile, build_path):
@@ -63,13 +63,13 @@ def build_python_image(dev_image_name, dev_dockerfile, build_path):
         ref=dev_image_name,
         context=build_path,
         dockerfile=dev_dockerfile,
-        # live_update=[
-        #     sync(build_path, "/usr/src"),
-        #     run(
-        #         "pip install -r requirements.txt",
-        #         trigger=requirements_path,
-        #     )
-        # ]
+        live_update=[
+            sync(build_path, "/usr/src"),
+            run(
+                "pip install -r requirements.txt",
+                trigger=requirements_path,
+            )
+        ]
     )
 
 register_backend()
