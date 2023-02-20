@@ -17,8 +17,8 @@ services:
     container_name: nlp-app-elasticsearch
     init: true
     ports:
-      - 9201:9200
-      - 9301:9300
+      - 9200:9200
+      - 9300:9300
     networks:
       - nlp-app
     volumes:
